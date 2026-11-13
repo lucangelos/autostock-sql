@@ -4,7 +4,7 @@ CREATE TABLE usuario (
   nm_email VARCHAR(255) NOT NULL UNIQUE,
   senha VARCHAR(255) NOT NULL,
   cd_telefone INT(11),
-  perfil ENUM('admin','estoquista', 'gerente de estoque') NOT NULL DEFAULT 'funcionario',
+  perfil ENUM('admin','estoquista', 'gerente de estoque') NOT NULL DEFAULT 'Estoquista',
   ativo tinyint(1) NOT NULL DEFAULT 1
 ); 
 
@@ -83,7 +83,7 @@ CREATE TABLE pedido (
 
     id_usuario INT(10) NOT NULL,
     CONSTRAINT fk_pedido_usuario
-    FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 );
 
 /*É a ligação entre a tabela PRODUTO e PEDIDO*/
@@ -107,5 +107,11 @@ CREATE TABLE historico (
     nm_titulo VARCHAR(80) NOT NULL,
     nm_mensagem VARCHAR (150) NOT NULL,
     ds_movimentacao ENUM('Entrada', 'Saída', 'Alteração', 'Solicitação') NOT NULL,
-    dt_movimentacao DATETIME NOT NULL
+    dt_movimentacao DATETIME NOT NULL,
+    
+    id_usuario INT(10) NOT NULL,
+    CONSTRAINT fk_usuario_id FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+    
+    id_pedido INT(10) NOT NULL,
+    CONSTRAINT fk_pedido_id FOREIGN KEY (id_pedido) REFERENCES pedido(id_pedido)
 );
