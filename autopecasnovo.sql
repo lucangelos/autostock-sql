@@ -1,0 +1,100 @@
+CREATE TABLE categoria (
+  id_categoria tinyint(3) PRIMARY KEY NOT NULL,
+  nm_categoria varchar(60) NOT NULL
+);
+
+CREATE TABLE fornecedor ( 
+	id_fornecedor TINYINT(3) PRIMARY KEY AUTO_INCREMENT,
+    cnpj VARCHAR(14) NOT NULL UNIQUE,
+    nm_fornecedor VARCHAR(120) NOT NULL,
+    marcaProduto VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    cd_telefone INT(11) NOT NULL
+);
+
+CREATE TABLE endereco (
+	id_endereco TINYINT(5) AUTO_INCREMENT PRIMARY KEY,
+    logradouro VARCHAR(150) NOT NULL,
+    numero INT(5) UNSIGNED NOT NULL,
+    complemento VARCHAR(50),
+    bairro VARCHAR(100) NOT NULL,
+    cidade VARCHAR(100) NOT NULL,
+    estado CHAR(2) NOT NULL,
+    cep CHAR(8) NOT NULL,
+    id_fornecedor TINYINT(3),
+    CONSTRAINT fk_fornecedor_id FOREIGN KEY (id_fornecedor) REFERENCES fornecedor(id_fornecedor)
+);
+
+CREATE TABLE usuarios (
+  id_usuario INT(10) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  nm_usuario VARCHAR(120) NOT NULL,
+  nm_email VARCHAR(255) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  cd_telefone INT(11),
+  perfil ENUM('admin','funcionario') NOT NULL DEFAULT 'funcionario',
+  ativo tinyint(1) NOT NULL DEFAULT 1
+);
+
+CREATE TABLE localizacao (
+	id_localizacao TINYINT(2) AUTO_INCREMENT PRIMARY KEY,
+    ds_localizacao VARCHAR(50) NOT NULL,
+    fileira CHAR(2) NOT NULL
+);
+
+CREATE TABLE produto (
+    cd_produto VARCHAR(25) PRIMARY KEY NOT NULL,
+    nm_produto VARCHAR(200) NOT NULL,
+    qt_valor_unitario DECIMAL(10,2) UNSIGNED NOT NULL,
+    ds_produto VARCHAR(80) NOT NULL,
+    qt_produto INT NOT NULL,
+    status BOOLEAN NOT NULL,
+
+    id_fornecedor TINYINT(3) NOT NULL,
+    CONSTRAINT fk_fornecedor_id
+    FOREIGN KEY (id_fornecedor) REFERENCES fornecedor(id_fornecedor),
+
+    id_localizacao TINYINT(2) NOT NULL,
+    CONSTRAINT fk_localizacao_id
+    FOREIGN KEY (id_localizacao) REFERENCES localizacao(id_localizacao)
+);
+
+
+CREATE TABLE produto_categoria (
+    cd_produto VARCHAR(25) NOT NULL,
+    id_categoria TINYINT(3) NOT NULL,
+
+    PRIMARY KEY (cd_produto, id_categoria),
+
+    CONSTRAINT fk_produto_categoria_produto
+    FOREIGN KEY (cd_produto) REFERENCES produto(cd_produto),
+
+    CONSTRAINT fk_produto_categoria_categoria
+    FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria)
+);
+
+
+CREATE TABLE pedidos (
+    id_pedido INT AUTO_INCREMENT PRIMARY KEY,
+    dt_pedido DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pendente', 'em andamento', 'concluido', 'cancelado') NOT NULL DEFAULT 'pendente',
+    vl_total DECIMAL(10,2) UNSIGNED NOT NULL DEFAULT 0.00,
+
+    id_usuario INT(10) NOT NULL,
+    CONSTRAINT fk_pedido_usuario
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+CREATE TABLE item_pedido (
+    id_item INT AUTO_INCREMENT PRIMARY KEY,
+    qt_quantidade INT UNSIGNED NOT NULL,
+    vl_unitario DECIMAL(10,2) UNSIGNED NOT NULL,
+
+    id_pedido INT NOT NULL,
+    cd_produto VARCHAR(25) NOT NULL,
+
+    CONSTRAINT fk_item_pedido
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido),
+
+    CONSTRAINT fk_item_produto
+    FOREIGN KEY (cd_produto) REFERENCES produto(cd_produto)
+);
