@@ -104,7 +104,6 @@ CREATE TABLE item_pedido (
 
 CREATE TABLE historico (
 	id_historico INT AUTO_INCREMENT PRIMARY KEY,
-    nm_titulo VARCHAR(80) NOT NULL,
     nm_mensagem VARCHAR (150) NOT NULL,
     ds_movimentacao ENUM('Entrada', 'Saída', 'Alteração', 'Solicitação') NOT NULL,
     dt_movimentacao DATETIME NOT NULL,
