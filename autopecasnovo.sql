@@ -1,7 +1,12 @@
-CREATE TABLE categoria (
-  id_categoria tinyint(3) PRIMARY KEY NOT NULL,
-  nm_categoria varchar(60) NOT NULL
-);
+CREATE TABLE usuario (
+  id_usuario INT(10) PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  nm_usuario VARCHAR(120) NOT NULL,
+  nm_email VARCHAR(255) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  cd_telefone INT(11),
+  perfil ENUM('admin','estoquista', 'gerente de estoque') NOT NULL DEFAULT 'funcionario',
+  ativo tinyint(1) NOT NULL DEFAULT 1
+); 
 
 CREATE TABLE fornecedor ( 
 	id_fornecedor TINYINT(3) PRIMARY KEY AUTO_INCREMENT,
@@ -23,16 +28,6 @@ CREATE TABLE endereco (
     cep CHAR(8) NOT NULL,
     id_fornecedor TINYINT(3),
     CONSTRAINT fk_fornecedor_id FOREIGN KEY (id_fornecedor) REFERENCES fornecedor(id_fornecedor)
-);
-
-CREATE TABLE usuarios (
-  id_usuario INT(10) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  nm_usuario VARCHAR(120) NOT NULL,
-  nm_email VARCHAR(255) NOT NULL UNIQUE,
-  senha VARCHAR(255) NOT NULL,
-  cd_telefone INT(11),
-  perfil ENUM('admin','funcionario') NOT NULL DEFAULT 'funcionario',
-  ativo tinyint(1) NOT NULL DEFAULT 1
 );
 
 CREATE TABLE localizacao (
@@ -58,6 +53,11 @@ CREATE TABLE produto (
     FOREIGN KEY (id_localizacao) REFERENCES localizacao(id_localizacao)
 );
 
+CREATE TABLE categoria (
+  id_categoria tinyint(3) PRIMARY KEY NOT NULL,
+  nm_categoria varchar(60) NOT NULL
+);
+
 
 CREATE TABLE produto_categoria (
     cd_produto VARCHAR(25) NOT NULL,
@@ -72,18 +72,21 @@ CREATE TABLE produto_categoria (
     FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria)
 );
 
-
-CREATE TABLE pedidos (
-    id_pedido INT AUTO_INCREMENT PRIMARY KEY,
+/*Pode haver pedido de saída de produtos dentro do estoque.
+  O usuário irá solicitar o pedido de saída dos produtos, e a tabela pedido ficará responsável por guardar essas informações e enviar ao administrador
+*/
+CREATE TABLE pedido (
+    id_pedido INT(10) AUTO_INCREMENT PRIMARY KEY,
     dt_pedido DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('pendente', 'em andamento', 'concluido', 'cancelado') NOT NULL DEFAULT 'pendente',
+    ds_status ENUM('pendente', 'em andamento', 'concluido', 'cancelado') NOT NULL DEFAULT 'pendente',
     vl_total DECIMAL(10,2) UNSIGNED NOT NULL DEFAULT 0.00,
 
     id_usuario INT(10) NOT NULL,
     CONSTRAINT fk_pedido_usuario
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+    FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
 );
 
+/*É a ligação entre a tabela PRODUTO e PEDIDO*/
 CREATE TABLE item_pedido (
     id_item INT AUTO_INCREMENT PRIMARY KEY,
     qt_quantidade INT UNSIGNED NOT NULL,
@@ -97,4 +100,12 @@ CREATE TABLE item_pedido (
 
     CONSTRAINT fk_item_produto
     FOREIGN KEY (cd_produto) REFERENCES produto(cd_produto)
+);
+
+CREATE TABLE historico (
+	id_historico INT AUTO_INCREMENT PRIMARY KEY,
+    nm_titulo VARCHAR(80) NOT NULL,
+    nm_mensagem VARCHAR (150) NOT NULL,
+    ds_movimentacao ENUM('Entrada', 'Saída', 'Alteração', 'Solicitação') NOT NULL,
+    dt_movimentacao DATETIME NOT NULL
 );
